@@ -5,6 +5,8 @@ node_modules/
 /agent-ready-*/
 /agent-context/
 /agent-context-*/
+/eval-results/
+/eval-results-*/
 
 # Local config and secrets
 .env

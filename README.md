@@ -168,6 +168,10 @@ For the website-owner publishing convention, see [docs/owner-llms-convention.md]
 
 A reusable starter template lives at [templates/llms.txt.md](templates/llms.txt.md).
 
+## A/B Testing
+
+The controlled-agent claim should be tested. See [docs/ab-testing.md](docs/ab-testing.md) for the recommended test arms, prompts, and metrics.
+
 ## Current Scope
 
 This first version uses deterministic extraction only. It fetches the homepage or reads saved HTML, then extracts:
@@ -192,6 +196,7 @@ npm run check
 ## Roadmap
 
 - Add fixture-based tests for clean, missing, and sensitive HTML.
+- Run A/B tests across 10-20 real websites.
 - Add optional owner-answer ingestion.
 - Add optional LLM rewrite pass for owner-approved language.
 - Add GitHub Action and framework plugin wrappers.
