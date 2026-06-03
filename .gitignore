@@ -1,0 +1,6 @@
+node_modules/
+/agent-ready/
+/agent-ready-*/
+/agent-context/
+/agent-context-*/
+npm-debug.log*
