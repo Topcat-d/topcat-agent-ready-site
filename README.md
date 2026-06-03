@@ -40,11 +40,30 @@ The private audit files help the owner decide what should and should not be surf
 
 ## Install
 
+Node.js 18+ is required.
+
+Clone and run locally:
+
 ```bash
+git clone https://github.com/Topcat-d/topcat-agent-ready-site.git
+cd topcat-agent-ready-site
 npm install
 ```
 
-Node.js 18+ is required.
+Install the CLI directly from GitHub:
+
+```bash
+npm install -g github:Topcat-d/topcat-agent-ready-site
+```
+
+Then run:
+
+```bash
+agent-ready-site https://example.com --out ./agent-ready
+agent-ready-site inspect https://example.com --out ./agent-context
+```
+
+The package name is `agent-ready-site`; the GitHub repo is `Topcat-d/topcat-agent-ready-site`.
 
 ## Website Owner Usage
 

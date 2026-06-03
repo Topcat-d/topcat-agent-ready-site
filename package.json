@@ -3,6 +3,14 @@
   "version": "0.1.0",
   "description": "Generate AI-readable website files: llms.txt, ai.json, ai.html, and llms-full.txt.",
   "type": "module",
+  "homepage": "https://github.com/Topcat-d/topcat-agent-ready-site#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Topcat-d/topcat-agent-ready-site.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Topcat-d/topcat-agent-ready-site/issues"
+  },
   "bin": {
     "agent-ready-site": "./src/index.js"
   },
