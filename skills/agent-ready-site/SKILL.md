@@ -8,6 +8,12 @@ origin: project
 
 Use this skill when a user wants to improve how LLMs understand a website, or when an agent should inspect a website by checking `/llms.txt` first.
 
+For platform-specific wrappers, see:
+
+- `integrations/claude-code/SKILL.md`
+- `integrations/codex/SKILL.md`
+- `integrations/cursor/agent-ready-site.mdc`
+
 ## Inputs
 
 Accept either:

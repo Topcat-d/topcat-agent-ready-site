@@ -1,6 +1,30 @@
 node_modules/
+
+# Generated agent-ready outputs
 /agent-ready/
 /agent-ready-*/
 /agent-context/
 /agent-context-*/
+
+# Local config and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and package-manager output
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Coverage/build artifacts
+coverage/
+dist/
+build/

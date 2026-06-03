@@ -2,7 +2,7 @@
 
 ## Decision
 
-Start with a downloadable CLI agent, then expose a thin skill wrapper and hooks around it.
+Start with a downloadable CLI agent, then expose thin skill/rule wrappers and hooks around it.
 
 The agent is the product core because it can inspect live HTML or saved browser/dev-panel HTML. Skills and hooks are adapters that run the same engine automatically.
 
@@ -18,18 +18,24 @@ That command should be callable from any environment.
 
 ## Hook Targets
 
-### Codex / AI Skill Wrapper
+### Claude Code / Codex / Cursor
 
-A skill should be thin:
+Agent wrappers should be thin:
 
 1. Ask for a URL or saved HTML path.
 2. Run the CLI in generate mode for website owners, or inspect mode for agent users.
 3. Show the generated `llms.txt`, `llms-full.txt`, and HTML gap report.
 4. Optionally patch the user's website source to improve title, description, H1, schema, contact text, and service pages.
 
-The skill should not reimplement extraction logic.
+The wrapper should not reimplement extraction logic.
 
 For agent users, inspect mode should run before broad crawling. If `agent-context.json` reports `ai_readable_context_found`, use that context first. If it reports `no_llms_txt_found`, fall back to homepage/sitemap inspection and say so.
+
+Templates:
+
+- Claude Code: `integrations/claude-code/SKILL.md`
+- Codex: `integrations/codex/SKILL.md`
+- Cursor: `integrations/cursor/agent-ready-site.mdc`
 
 ### AI Website Builders
 
@@ -117,6 +123,8 @@ Do not surface:
 - claims not supported by visible site content or owner answers
 
 Prefer links to public contact, booking, store, services, blog, about, and FAQ pages over copying contact values into generated text.
+
+For the owner-facing publishing convention, see `docs/owner-llms-convention.md`.
 
 ## Later
 

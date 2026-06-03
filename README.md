@@ -1,28 +1,42 @@
 # Agent Ready Site
 
-Generate AI-readable website files from a URL or saved HTML.
+CLI and skill workflow for `llms.txt` generation, safety review, and agent-side first-read website context.
 
-This project starts with the simplest useful wedge: a downloadable CLI agent that inspects website HTML and suggests files a site owner can publish so LLMs understand the business better:
+Inspired by the emerging [`llms.txt`](https://www.crawloria.com/blog/llms-txt-explainer) convention: a Markdown file at a site root that gives retrieval-mode LLMs a curated map of important pages.
+
+## What It Does
+
+Agent Ready Site has two tight workflows.
+
+For **website owners**, it inspects a live URL or saved HTML and generates owner-review files:
 
 - `llms.txt`
 - `llms-full.txt`
-- `ai.json`
-- `ai.html`
 - `ai-audit.md`
 - `owner-questions.md`
+- `ai.json`
+- `ai.html`
 
-## Why CLI First
+For **agent users**, it checks a website for `/llms.txt` before broad crawling:
 
-The first product should be an agent people can download and run, not a hook buried inside one website builder.
+- if `/llms.txt` exists, use it as first context
+- if `/llms-full.txt` exists, use it only when more detail is needed
+- if `/llms.txt` is missing, fall back to homepage/sitemap inspection and report that path
 
-Hooks and skills are still important, but they are distribution layers. The CLI is the core engine. Once the CLI works, it can be called from:
+The project does not claim that major AI search providers automatically consume `llms.txt`. It focuses on agents you control: Claude Code, Codex, Cursor, AI-builder workflows, and custom retrieval pipelines.
 
-- Codex or AI-builder skills
-- AI website builders
-- GitHub Actions
-- Vercel or Netlify build hooks
-- local dev scripts
-- CMS plugins
+## Why This Exists
+
+Most websites are written for humans and search engines, not retrieval-mode agents. An agent trying to understand a site may waste tokens on nav, footers, scripts, vague hero copy, or irrelevant pages.
+
+`llms.txt` gives controlled agents a compact first-read path:
+
+```text
+/llms.txt       compact public map of important pages
+/llms-full.txt  expanded public context, still owner-reviewed
+```
+
+The private audit files help the owner decide what should and should not be surfaced before anything is published.
 
 ## Install
 
@@ -30,7 +44,9 @@ Hooks and skills are still important, but they are distribution layers. The CLI 
 npm install
 ```
 
-## Run
+Node.js 18+ is required.
+
+## Website Owner Usage
 
 Generate owner-review files from a live URL:
 
@@ -44,34 +60,51 @@ Generate owner-review files from saved HTML copied/exported from the browser dev
 npm start -- ./homepage.html --site-url https://example.com --out ./agent-ready
 ```
 
-Inspect a site as an agent user and check `/llms.txt` first:
-
-```bash
-npm start -- inspect https://example.com --out ./agent-context
-```
-
-Or after global installation:
+After global installation:
 
 ```bash
 agent-ready-site https://example.com --out ./agent-ready
-agent-ready-site inspect https://example.com --out ./agent-context
 ```
 
-## Output
-
-The command writes:
+Owner output:
 
 ```text
 agent-ready/
+  ai-audit.md
   ai.html
   ai.json
-  ai-audit.md
   llms-full.txt
   llms.txt
   owner-questions.md
 ```
 
-Agent-side inspect mode writes:
+Publishable candidates:
+
+- `llms.txt`
+- `llms-full.txt`
+
+Private review artifacts by default:
+
+- `ai-audit.md`
+- `owner-questions.md`
+- `ai.json`
+- `ai.html`
+
+## Agent User Usage
+
+Inspect a site and check `/llms.txt` first:
+
+```bash
+npm start -- inspect https://example.com --out ./agent-context
+```
+
+After global installation:
+
+```bash
+agent-ready-site inspect https://example.com --out ./agent-context
+```
+
+Agent-side output:
 
 ```text
 agent-context/
@@ -79,7 +112,61 @@ agent-context/
   agent-context.md
 ```
 
-If `/llms.txt` exists, inspect mode uses it as first context and reads `/llms-full.txt` only when available. If `/llms.txt` is missing, it reports `no_llms_txt_found` and falls back to homepage/sitemap inspection.
+If `/llms.txt` exists, inspect mode writes `ai_readable_context_found` and includes the file as first context. If `/llms.txt` is missing, it writes `no_llms_txt_found` and falls back to homepage/sitemap inspection.
+
+## Safety Model
+
+Generated files are recommendations, not automatic publishing decisions.
+
+The CLI performs deterministic checks for common sensitive signals:
+
+- private keys
+- API keys
+- bearer tokens
+- password-like values
+- credit-card-like numbers
+- SSN-like numbers
+- internal hosts
+- admin paths
+
+When high-risk content is detected, the output is marked `review_required`.
+
+Raw phone numbers and email addresses are redacted from generated files by default. The generated output may say that a contact method exists, but it should point users to public contact or booking pages instead of copying contact values into LLM-facing files.
+
+Do not publish:
+
+- secrets, tokens, credentials, or private keys
+- customer data or private stories
+- raw phone numbers or raw emails
+- internal/admin URLs
+- draft pages
+- non-public pricing
+- unsupported claims
+- regulated advice that has not been approved
+- stale services, pricing, policies, or product claims
+
+## Integrations
+
+The CLI is the core engine. Agent wrappers should call the CLI instead of reimplementing extraction logic.
+
+Included templates:
+
+- [Claude Code skill](integrations/claude-code/SKILL.md)
+- [Codex skill](integrations/codex/SKILL.md)
+- [Cursor rule](integrations/cursor/agent-ready-site.mdc)
+
+Shared command shape:
+
+```bash
+agent-ready-site https://example.com --out ./agent-ready
+agent-ready-site inspect https://example.com --out ./agent-context
+```
+
+## Owner Convention
+
+For the website-owner publishing convention, see [docs/owner-llms-convention.md](docs/owner-llms-convention.md).
+
+A reusable starter template lives at [templates/llms.txt.md](templates/llms.txt.md).
 
 ## Current Scope
 
@@ -91,60 +178,20 @@ This first version uses deterministic extraction only. It fetches the homepage o
 - headings
 - links
 - JSON-LD blocks
-- detected email addresses
-- detected phone numbers
+- contact presence signals with values redacted
 - likely audience and offer signals
 - HTML gaps that block LLM comprehension
 - common sensitive signals that should not be surfaced
 
-## Safety Model
+## Test
 
-Generated files are recommendations, not automatic publishing decisions.
+```bash
+npm run check
+```
 
-Publishable candidates:
+## Roadmap
 
-- `llms.txt`
-- `llms-full.txt`
-
-Private review artifacts:
-
-- `ai-audit.md`
-- `owner-questions.md`
-- `ai.json`
-- `ai.html`
-
-The agent writes `owner-questions.md` so the website owner can confirm:
-
-- what business facts should be surfaced
-- what offers and contact paths should be highlighted
-- what should never appear in LLM-facing files
-- whether pricing, regulated claims, private customer details, staff details, or internal links should be excluded
-
-The CLI also performs deterministic checks for common sensitive signals such as private keys, API keys, bearer tokens, password-like values, credit-card-like numbers, SSN-like numbers, internal hosts, and admin paths. When detected, the output is marked `review_required` and risky text is redacted from generated samples.
-
-Raw phone numbers and email addresses are redacted from generated files by default. The generated output may say that a contact method exists, but it should point users to public contact or booking pages instead of copying contact values into LLM-facing files.
-
-The next step is adding an optional LLM pass that turns the raw extraction into stronger answers for:
-
-- what the site does
-- who it serves
-- offers
-- pricing
-- proof
-- missing information
-- agent comprehension score
-
-## Product Direction
-
-Ship the CLI first. Add a Codex/AI-builder skill wrapper after the file contract is stable.
-
-Recommended integration order:
-
-1. CLI agent
-2. Codex skill wrapper
-3. GitHub Action
-4. Vercel/Netlify build hook
-5. Next.js/Astro/Vite plugin
-6. CMS plugins
-
-See [docs/integration-hooks.md](docs/integration-hooks.md).
+- Add fixture-based tests for clean, missing, and sensitive HTML.
+- Add optional owner-answer ingestion.
+- Add optional LLM rewrite pass for owner-approved language.
+- Add GitHub Action and framework plugin wrappers.

@@ -1,0 +1,43 @@
+---
+description: Use Agent Ready Site to generate llms.txt files and check /llms.txt before website crawling
+globs: "**/*"
+alwaysApply: false
+---
+
+# Agent Ready Site
+
+Use this rule when working on website visibility for LLMs or when inspecting a public website.
+
+## Owner Workflow
+
+If the user owns or is building the website, run:
+
+```bash
+node ./src/index.js https://example.com --out ./agent-ready
+```
+
+For saved HTML:
+
+```bash
+node ./src/index.js ./homepage.html --site-url https://example.com --out ./agent-ready
+```
+
+Review `owner-questions.md` before publishing. Only `llms.txt` and `llms-full.txt` are publishable candidates by default. Keep `ai-audit.md`, `owner-questions.md`, `ai.json`, and `ai.html` private unless the owner approves them.
+
+## Agent User Workflow
+
+Before broad crawling, run:
+
+```bash
+node ./src/index.js inspect https://example.com --out ./agent-context
+```
+
+If `agent-context.json` reports `ai_readable_context_found`, use `agent-context.md` first.
+
+If it reports `no_llms_txt_found`, say: "No `llms.txt` found. Falling back to homepage/sitemap inspection."
+
+Prefer linked public pages from `/llms.txt` over broad crawling.
+
+## Safety
+
+Do not surface secrets, credentials, customer data, private stories, raw phone numbers, raw email addresses, internal/admin URLs, draft pages, non-public pricing, unsupported claims, or regulated advice unless the owner explicitly approves the exact wording.
